@@ -118,7 +118,6 @@ export const APIRoute = createAPIFileRoute("/api/video/$id")({
         });
       }
     } catch (error) {
-      console.error("Error streaming video:", error);
       return new Response("Error streaming video", { status: 500 });
     }
   },

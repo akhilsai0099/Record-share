@@ -25,13 +25,12 @@ const getVideoById = createServerFn({
     };
   });
 
-export const Route = createFileRoute("/videos_/$id")({
+export const Route = createFileRoute("/_authenticated/videos_/$id")({
   component: RouteComponent,
   loader: async ({ params }) => {
     try {
       return await getVideoById({ data: params.id });
     } catch (error) {
-      console.error("Error loading video:", error);
       return null;
     }
   },
@@ -76,7 +75,6 @@ function RouteComponent() {
     setVideoError(
       `Error playing video: ${e.currentTarget.error?.message || "Unknown error"}`
     );
-    console.error("Video error:", e.currentTarget.error);
   };
 
   // Handle video loaded
@@ -98,9 +96,7 @@ function RouteComponent() {
         navigator.clipboard.writeText(window.location.href);
         alert("Link copied to clipboard!");
       }
-    } catch (error) {
-      console.error("Error sharing:", error);
-    }
+    } catch (error) {}
   };
 
   if (videoError) {

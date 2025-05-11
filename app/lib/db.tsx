@@ -18,7 +18,6 @@ export const getDB = () =>
 
 export const saveChunk = async (chunk: Blob, sessionId: string) => {
   const db = await getDB();
-  console.log("Saving chunk to IndexedDB for session:", sessionId);
   await db.add(STORE_NAME, { chunk, sessionId, timestamp: Date.now() });
 };
 

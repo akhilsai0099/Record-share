@@ -1,11 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import ScreenRecorder from "../components/recorder";
-import { createServerFn } from "@tanstack/react-start";
 import { saveVideoFn } from "@/actions/videoActions";
-import { Toaster } from "@/components/ui/sonner";
+import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import ScreenRecorder from "../../components/recorder";
 
-export const Route = createFileRoute("/record")({
+export const Route = createFileRoute("/_authenticated/record")({
   component: RouteComponent,
 });
 
@@ -49,7 +48,6 @@ function RouteComponent() {
     <div className="container mx-auto max-w-4xl py-8 px-4">
       <h1 className="text-3xl font-bold mb-6">Record Your Screen</h1>
       <ScreenRecorder saveVideo={handleSaveVideo} />
-      <Toaster position="top-right" />
     </div>
   );
 }

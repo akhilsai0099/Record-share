@@ -24,10 +24,8 @@ export const saveVideoFn = async (blob: Blob, sessionId: string) => {
   await new Promise<void>((resolve, reject) => {
     fs.writeFile(filePath, buffer, (err) => {
       if (err) {
-        console.error("Failed to save video", err);
         reject(err);
       } else {
-        console.log("Video saved successfully");
         resolve();
       }
     });
@@ -42,7 +40,6 @@ export const saveVideoFn = async (blob: Blob, sessionId: string) => {
           reject(err);
         })
         .on("end", () => {
-          console.log("Thumbnail generated successfully");
           resolve();
         })
         .screenshots({

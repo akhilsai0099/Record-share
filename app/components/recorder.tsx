@@ -7,6 +7,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ScreenRecorder({ saveVideo }) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -21,7 +22,6 @@ export default function ScreenRecorder({ saveVideo }) {
   useEffect(() => {
     const activeSession = localStorage.getItem("active-session-id");
     if (activeSession) {
-      console.log("Restoring previous session:", activeSession);
       setSessionId(activeSession);
       // Instead of automatically starting recording, show the interrupt message
       setInterruptedRecording(true);
@@ -63,22 +63,19 @@ export default function ScreenRecorder({ saveVideo }) {
 
       recorder.ondataavailable = async (e) => {
         if (e.data.size > 0) {
-          console.log("Saving chunk of size:", e.data.size);
           await saveChunk(e.data, activeSessionId);
         }
       };
 
       recorder.onstop = async () => {
-        console.log("Recording stopped. Fetching chunks...");
         setIsSaving(true);
 
         try {
           const chunks = await getAllChunksBySession(activeSessionId);
           const blob = new Blob(chunks, { type: "video/webm" });
-          console.log("Blob size:", blob.size);
 
           if (blob.size === 0) {
-            console.error("Recording failed: empty blob.");
+            toast.error("Recording failed: empty blob.");
             setIsSaving(false);
             return;
           }
@@ -96,7 +93,7 @@ export default function ScreenRecorder({ saveVideo }) {
           localStorage.removeItem("active-session-id");
           setSessionId(null);
         } catch (err) {
-          console.error("Failed during recording process:", err);
+          toast.error("Failed during recording process:", err);
         } finally {
           setIsSaving(false);
           setRecording(false);
@@ -107,12 +104,13 @@ export default function ScreenRecorder({ saveVideo }) {
       mediaRecorderRef.current = recorder;
       setRecording(true);
     } catch (error) {
-      console.error("Error starting recording:", error);
+      toast.error(
+        "Failed to start screen recording. Please check your permissions."
+      );
     }
   };
 
   const stopRecording = () => {
-    console.log("Manually stopping recording...");
     mediaRecorderRef.current?.requestData();
     mediaRecorderRef.current?.stop();
     screenStreamRef.current?.getTracks().forEach((track) => track.stop());

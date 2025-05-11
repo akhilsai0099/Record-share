@@ -31,7 +31,6 @@ export const APIRoute = createAPIFileRoute("/api/thumbnail/$id")({
       // If thumbnail doesn't exist, return a fallback image or 404
       return new Response("Thumbnail not found", { status: 404 });
     } catch (error) {
-      console.error("Error serving thumbnail:", error);
       return new Response("Error serving thumbnail", { status: 500 });
     }
   },

@@ -48,7 +48,7 @@ function Home() {
                   High-quality screen recording with just a few clicks. No
                   downloads, no hassle.
                 </p>
-              </div>
+              </div>{" "}
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
                   asChild
@@ -69,6 +69,17 @@ function Home() {
                   <Link to="/videos">
                     <Play className="h-4 w-4" />
                     View Recordings
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="gap-1.5 border-primary/20 hover:bg-primary/5 hover:text-primary"
+                >
+                  <Link to="/signup">
+                    <ArrowRight className="h-4 w-4" />
+                    Sign Up
                   </Link>
                 </Button>
               </div>
@@ -162,7 +173,7 @@ function Home() {
                 </span>{" "}
                 others who are already using RecSha to capture their screens
               </p>
-            </div>
+            </div>{" "}
             <Button
               asChild
               size="lg"
@@ -174,6 +185,15 @@ function Home() {
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
             </Button>
+            <div className="mt-4">
+              <p className="text-muted-foreground">
+                New user?{" "}
+                <Link to="/signup" className="text-primary hover:underline">
+                  Sign up now
+                </Link>{" "}
+                to save and share your recordings.
+              </p>
+            </div>
           </div>
         </div>
       </section>

@@ -1,17 +1,24 @@
 // app/routes/__root.tsx
-import type { ReactNode } from "react";
-import {
-  Outlet,
-  createRootRoute,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
-import { Nav } from "@/components/ui/nav";
+import { fetchUserQueryOptions } from "@/actions/queryOptions";
 import { Layout } from "@/components/layout";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Nav } from "@/components/ui/nav";
+import { Toaster } from "@/components/ui/sonner";
 import appCss from "@/styles/app.css?url";
+import { QueryClient } from "@tanstack/react-query";
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import type { ReactNode } from "react";
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+}>()({
   head: () => ({
     meta: [
       {
@@ -32,6 +39,12 @@ export const Route = createRootRoute({
       },
     ],
   }),
+  beforeLoad: async ({ context }) => {
+    const authState = await context.queryClient.ensureQueryData(
+      fetchUserQueryOptions()
+    );
+    return { authState };
+  },
   component: RootComponent,
 });
 
@@ -47,7 +60,10 @@ function RootComponent() {
             </main>
           </div>
         </Layout>
+        <Toaster position="top-right" />
       </ThemeProvider>
+      <ReactQueryDevtoolsPanel />
+      <TanStackRouterDevtools />
     </RootDocument>
   );
 }

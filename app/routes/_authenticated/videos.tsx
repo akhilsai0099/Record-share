@@ -1,5 +1,5 @@
 import { getListOfVideosFn } from "@/actions/videoActions";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { VideoGrid, Video } from "@/components/VideoGrid";
 
@@ -9,7 +9,7 @@ const listVideos = createServerFn({
   return getListOfVideosFn();
 });
 
-export const Route = createFileRoute("/videos")({
+export const Route = createFileRoute("/_authenticated/videos")({
   component: VideosPage,
   loader: async () => {
     return await listVideos();

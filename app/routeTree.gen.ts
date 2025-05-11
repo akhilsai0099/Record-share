@@ -11,29 +11,32 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as VideosImport } from './routes/videos'
-import { Route as RecordImport } from './routes/record'
-import { Route as AdminImport } from './routes/admin'
+import { Route as SignupImport } from './routes/signup'
+import { Route as LoginImport } from './routes/login'
+import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
-import { Route as VideosIdImport } from './routes/videos_.$id'
+import { Route as AuthenticatedVideosImport } from './routes/_authenticated/videos'
+import { Route as AuthenticatedSettingsImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedRecordImport } from './routes/_authenticated/record'
+import { Route as AuthenticatedProfileImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedVideosIdImport } from './routes/_authenticated/videos_.$id'
 
 // Create/Update Routes
 
-const VideosRoute = VideosImport.update({
-  id: '/videos',
-  path: '/videos',
+const SignupRoute = SignupImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRoute,
 } as any)
 
-const RecordRoute = RecordImport.update({
-  id: '/record',
-  path: '/record',
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AdminRoute = AdminImport.update({
-  id: '/admin',
-  path: '/admin',
+const AuthenticatedRoute = AuthenticatedImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -43,10 +46,34 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const VideosIdRoute = VideosIdImport.update({
+const AuthenticatedVideosRoute = AuthenticatedVideosImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedSettingsRoute = AuthenticatedSettingsImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedRecordRoute = AuthenticatedRecordImport.update({
+  id: '/record',
+  path: '/record',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedProfileRoute = AuthenticatedProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedVideosIdRoute = AuthenticatedVideosIdImport.update({
   id: '/videos_/$id',
   path: '/videos/$id',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -60,87 +87,173 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedImport
       parentRoute: typeof rootRoute
     }
-    '/record': {
-      id: '/record'
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/record': {
+      id: '/_authenticated/record'
       path: '/record'
       fullPath: '/record'
-      preLoaderRoute: typeof RecordImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedRecordImport
+      parentRoute: typeof AuthenticatedImport
     }
-    '/videos': {
-      id: '/videos'
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/videos': {
+      id: '/_authenticated/videos'
       path: '/videos'
       fullPath: '/videos'
-      preLoaderRoute: typeof VideosImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedVideosImport
+      parentRoute: typeof AuthenticatedImport
     }
-    '/videos_/$id': {
-      id: '/videos_/$id'
+    '/_authenticated/videos_/$id': {
+      id: '/_authenticated/videos_/$id'
       path: '/videos/$id'
       fullPath: '/videos/$id'
-      preLoaderRoute: typeof VideosIdImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedVideosIdImport
+      parentRoute: typeof AuthenticatedImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedRecordRoute: typeof AuthenticatedRecordRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedVideosRoute: typeof AuthenticatedVideosRoute
+  AuthenticatedVideosIdRoute: typeof AuthenticatedVideosIdRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedRecordRoute: AuthenticatedRecordRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedVideosRoute: AuthenticatedVideosRoute,
+  AuthenticatedVideosIdRoute: AuthenticatedVideosIdRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/record': typeof RecordRoute
-  '/videos': typeof VideosRoute
-  '/videos/$id': typeof VideosIdRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/record': typeof AuthenticatedRecordRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/videos': typeof AuthenticatedVideosRoute
+  '/videos/$id': typeof AuthenticatedVideosIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/record': typeof RecordRoute
-  '/videos': typeof VideosRoute
-  '/videos/$id': typeof VideosIdRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/record': typeof AuthenticatedRecordRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/videos': typeof AuthenticatedVideosRoute
+  '/videos/$id': typeof AuthenticatedVideosIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/record': typeof RecordRoute
-  '/videos': typeof VideosRoute
-  '/videos_/$id': typeof VideosIdRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/record': typeof AuthenticatedRecordRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/videos': typeof AuthenticatedVideosRoute
+  '/_authenticated/videos_/$id': typeof AuthenticatedVideosIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/record' | '/videos' | '/videos/$id'
+  fullPaths:
+    | '/'
+    | ''
+    | '/login'
+    | '/signup'
+    | '/profile'
+    | '/record'
+    | '/settings'
+    | '/videos'
+    | '/videos/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/record' | '/videos' | '/videos/$id'
-  id: '__root__' | '/' | '/admin' | '/record' | '/videos' | '/videos_/$id'
+  to:
+    | '/'
+    | ''
+    | '/login'
+    | '/signup'
+    | '/profile'
+    | '/record'
+    | '/settings'
+    | '/videos'
+    | '/videos/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/signup'
+    | '/_authenticated/profile'
+    | '/_authenticated/record'
+    | '/_authenticated/settings'
+    | '/_authenticated/videos'
+    | '/_authenticated/videos_/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
-  RecordRoute: typeof RecordRoute
-  VideosRoute: typeof VideosRoute
-  VideosIdRoute: typeof VideosIdRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
-  RecordRoute: RecordRoute,
-  VideosRoute: VideosRoute,
-  VideosIdRoute: VideosIdRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
 }
 
 export const routeTree = rootRoute
@@ -154,26 +267,49 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/admin",
-        "/record",
-        "/videos",
-        "/videos_/$id"
+        "/_authenticated",
+        "/login",
+        "/signup"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/admin": {
-      "filePath": "admin.tsx"
+    "/_authenticated": {
+      "filePath": "_authenticated.tsx",
+      "children": [
+        "/_authenticated/profile",
+        "/_authenticated/record",
+        "/_authenticated/settings",
+        "/_authenticated/videos",
+        "/_authenticated/videos_/$id"
+      ]
     },
-    "/record": {
-      "filePath": "record.tsx"
+    "/login": {
+      "filePath": "login.tsx"
     },
-    "/videos": {
-      "filePath": "videos.tsx"
+    "/signup": {
+      "filePath": "signup.tsx"
     },
-    "/videos_/$id": {
-      "filePath": "videos_.$id.tsx"
+    "/_authenticated/profile": {
+      "filePath": "_authenticated/profile.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/record": {
+      "filePath": "_authenticated/record.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/settings": {
+      "filePath": "_authenticated/settings.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/videos": {
+      "filePath": "_authenticated/videos.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/videos_/$id": {
+      "filePath": "_authenticated/videos_.$id.tsx",
+      "parent": "/_authenticated"
     }
   }
 }
