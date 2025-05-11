@@ -147,11 +147,11 @@ export default function ScreenRecorder({ saveVideo }) {
 
       <div className="space-y-4">
         {interruptedRecording ? (
-          <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
-            <h3 className="text-amber-800 dark:text-amber-300 font-medium mb-2">
+          <div className="bg-accent/30 dark:bg-accent/30 border border-accent dark:border-accent rounded-lg p-4 mb-4">
+            <h3 className="text-accent-foreground dark:text-accent-foreground font-medium mb-2">
               Recording Interrupted
             </h3>
-            <p className="text-amber-700 dark:text-amber-400 text-sm mb-3">
+            <p className="text-accent-foreground dark:text-accent-foreground text-sm mb-3">
               Your previous recording was interrupted. Would you like to
               continue where you left off or start a new recording?
             </p>
@@ -159,14 +159,14 @@ export default function ScreenRecorder({ saveVideo }) {
               <Button
                 variant="outline"
                 onClick={continueRecording}
-                className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-800/50"
+                className="border-accent dark:border-accent text-accent-foreground dark:text-accent-foreground hover:bg-accent/10 dark:hover:bg-accent/50"
               >
                 Continue Recording
               </Button>
               <Button
                 variant="outline"
                 onClick={startNewRecording}
-                className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-800/50"
+                className="border-accent dark:border-accent text-accent-foreground dark:text-accent-foreground hover:bg-accent/10 dark:hover:bg-accent/50"
               >
                 Start New Recording
               </Button>
@@ -207,8 +207,8 @@ export default function ScreenRecorder({ saveVideo }) {
 
         {videoUrl && (
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Recorded Video:</h3>
-            <div className="rounded-lg overflow-hidden bg-black shadow-md border border-border/50">
+            <h3 className="text-lg font-semibold mb-2">Recorded Video:</h3>{" "}
+            <div className="rounded-lg overflow-hidden bg-muted shadow-md border border-border/50">
               <video src={videoUrl} controls className="w-full aspect-video" />
             </div>
           </div>

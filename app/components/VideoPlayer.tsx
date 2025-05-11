@@ -253,7 +253,7 @@ export function VideoPlayer({
   return (
     <div
       ref={containerRef}
-      className="relative rounded-lg overflow-hidden bg-black w-full max-w-4xl mx-auto group"
+      className="relative rounded-lg overflow-hidden bg-background w-full max-w-4xl mx-auto group"
       onMouseMove={resetControlsTimeout}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
@@ -267,35 +267,33 @@ export function VideoPlayer({
         onClick={togglePlay}
         onDoubleClick={toggleFullscreen}
       />
-
       {/* Big play button overlay (when paused) */}
       {!isPlaying && (
         <div
           className="absolute inset-0 flex items-center justify-center cursor-pointer"
           onClick={togglePlay}
         >
-          <div className="bg-black/40 text-white rounded-full p-4 transition-transform hover:scale-110">
+          <div className="bg-muted/40 text-primary-foreground rounded-full p-4 transition-transform hover:scale-110">
             <Play size={48} />
           </div>
         </div>
       )}
-
-      {/* Controls bar */}
+      {/* Controls bar */}{" "}
       <div
         className={cn(
-          "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent px-4 py-2 transition-opacity",
+          "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-muted/90 to-transparent px-4 py-2 transition-opacity",
           showControls ? "opacity-100" : "opacity-0"
         )}
       >
-        {/* Progress bar */}
+        {/* Progress bar */}{" "}
         <div
           ref={progressBarRef}
-          className="relative h-1.5 mb-3 mt-1 bg-gray-600 rounded cursor-pointer hover:h-2.5 transition-all"
+          className="relative h-1.5 mb-3 mt-1 bg-accent rounded cursor-pointer hover:h-2.5 transition-all"
           onClick={handleProgressBarClick}
         >
           {/* Buffered progress */}
           <div
-            className="absolute h-full bg-gray-400 rounded"
+            className="absolute h-full bg-muted-foreground rounded"
             style={{ width: `${buffered}%` }}
           ></div>
 
@@ -308,55 +306,50 @@ export function VideoPlayer({
             <div className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-primary rounded-full opacity-0 group-hover:opacity-100 shadow-md"></div>
           </div>
         </div>
-
         {/* Controls row */}
         <div className="flex items-center gap-3 h-12">
-          {/* Play/Pause */}
+          {/* Play/Pause */}{" "}
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/10"
+            className="text-primary-foreground hover:bg-accent/10"
             onClick={togglePlay}
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </Button>
-
-          {/* Skip backward */}
+          {/* Skip backward */}{" "}
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/10"
+            className="text-primary-foreground hover:bg-accent/10"
             onClick={() => skipTime(-10)}
           >
             <SkipBack size={18} />
           </Button>
-
-          {/* Skip forward */}
+          {/* Skip forward */}{" "}
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/10"
+            className="text-primary-foreground hover:bg-accent/10"
             onClick={() => skipTime(10)}
           >
             <SkipForward size={18} />
           </Button>
-
           {/* Time display */}
-          <div className="text-white text-sm">
+          <div className="text-primary-foreground text-sm">
             <span>{formatTime(currentTime)}</span>
             <span className="mx-1">/</span>
             <span>{formatTime(duration)}</span>
           </div>
-
           {/* Spacer */}
           <div className="flex-grow"></div>
-
           {/* Volume controls */}
           <div className="flex items-center">
+            {" "}
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/10"
+              className="text-primary-foreground hover:bg-accent/10"
               onClick={toggleMute}
             >
               {isMuted || volume === 0 ? (
@@ -365,7 +358,6 @@ export function VideoPlayer({
                 <Volume2 size={20} />
               )}
             </Button>
-
             <div className="relative w-20 hidden sm:block">
               <input
                 type="range"
@@ -374,25 +366,23 @@ export function VideoPlayer({
                 step="0.01"
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
-                className="w-full h-1 bg-gray-600 rounded appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:appearance-none"
+                className="w-full h-1 bg-accent rounded appearance-none cursor-pointer [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary-foreground [&::-webkit-slider-thumb]:appearance-none"
               />
             </div>
           </div>
-
-          {/* Settings button */}
+          {/* Settings button */}{" "}
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/10"
+            className="text-primary-foreground hover:bg-accent/10"
           >
             <Settings size={20} />
           </Button>
-
-          {/* Fullscreen toggle */}
+          {/* Fullscreen toggle */}{" "}
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/10"
+            className="text-primary-foreground hover:bg-accent/10"
             onClick={toggleFullscreen}
           >
             {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}

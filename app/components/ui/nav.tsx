@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 import { Home, Film, Video } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface NavLinkProps {
   to: string;
@@ -48,6 +49,7 @@ const NavLink = ({ to, icon, children, className }: NavLinkProps) => {
 export function Nav() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
+      {" "}
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex items-center">
           <Link to="/" className="flex items-center gap-2">
@@ -66,6 +68,8 @@ export function Nav() {
             Record
           </NavLink>
         </div>
+        <div className="flex-1"></div>
+        <ThemeToggle />
       </div>
     </nav>
   );

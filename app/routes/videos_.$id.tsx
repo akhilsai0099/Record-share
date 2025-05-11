@@ -106,11 +106,11 @@ function RouteComponent() {
   if (videoError) {
     return (
       <div className="container mx-auto max-w-6xl py-8 px-4">
-        <div className="p-8 text-center bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
-          <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">
+        <div className="p-8 text-center bg-destructive/10 dark:bg-destructive/20 rounded-lg border border-destructive/20 dark:border-destructive/30">
+          <h2 className="text-xl font-bold text-destructive dark:text-destructive mb-2">
             Video Error
           </h2>
-          <p className="text-red-500">{videoError}</p>
+          <p className="text-destructive">{videoError}</p>
           <Button asChild variant="outline" className="mt-4">
             <Link to="/videos">Return to Videos</Link>
           </Button>
@@ -122,8 +122,8 @@ function RouteComponent() {
   if (!video) {
     return (
       <div className="container mx-auto max-w-6xl py-8 px-4">
-        <div className="p-8 text-center bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-          <h2 className="text-xl font-bold text-amber-600 dark:text-amber-400 mb-2">
+        <div className="p-8 text-center bg-accent/20 dark:bg-accent/20 rounded-lg border border-accent/20 dark:border-accent/30">
+          <h2 className="text-xl font-bold text-accent-foreground dark:text-accent-foreground mb-2">
             Video Not Found
           </h2>
           <p className="text-muted-foreground">
@@ -153,7 +153,7 @@ function RouteComponent() {
       </Button>
 
       {/* Video Player */}
-      <div className="rounded-lg overflow-hidden shadow-lg bg-black mb-6">
+      <div className="rounded-lg overflow-hidden shadow-lg bg-muted mb-6">
         <VideoPlayer
           videoSrc={`/api/video/${id}`}
           onError={handleVideoError}

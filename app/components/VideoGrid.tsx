@@ -305,11 +305,11 @@ export function VideoGrid({ videos }: VideoGridProps) {
                       // If thumbnail fails to load, show fallback icon
                       e.currentTarget.style.display = "none";
                     }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black/30 to-black/20 z-10">
+                  />{" "}
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted/30 to-muted/20 z-10">
                     <VideoIcon className="h-12 w-12 text-primary/70" />
                   </div>
-                  <div className="absolute bottom-2 right-2 px-2 py-1 text-xs font-medium rounded-md bg-black/70 text-white z-20">
+                  <div className="absolute bottom-2 right-2 px-2 py-1 text-xs font-medium rounded-md bg-muted/70 text-primary-foreground z-20">
                     {getVideoDuration()}
                   </div>
                 </div>
