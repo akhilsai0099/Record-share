@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { routeTree } from "./routeTree.gen";
-import { LoadingFallback } from "./components/loading-fallback";
+import { LoadingFallback } from "./components/loaders/loading-fallback";
 
 export function createRouter() {
   const queryClient = new QueryClient();

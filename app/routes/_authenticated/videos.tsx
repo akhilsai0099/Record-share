@@ -1,12 +1,13 @@
 import { fetchVideosQueryOptions } from "@/actions/queryOptions";
 import { VideoGrid } from "@/components/VideoGrid";
+import { VideoGridSkeleton } from "@/components/loaders/VideoGridSkeleton";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 export const Route = createFileRoute("/_authenticated/videos")({
   component: VideosPage,
-  loader: async ({ context }) => {
-    return context.queryClient.ensureQueryData(fetchVideosQueryOptions());
+  loader: ({ context }) => {
+    context.queryClient.prefetchQuery(fetchVideosQueryOptions());
   },
 });
 
@@ -19,7 +20,7 @@ function VideosPage() {
           Browse and manage your screen recordings
         </p>
       </div>
-      <Suspense fallback={<div>Loading from suspense...</div>}>
+      <Suspense fallback={<VideoGridSkeleton />}>
         <VideoGrid />
       </Suspense>
     </div>

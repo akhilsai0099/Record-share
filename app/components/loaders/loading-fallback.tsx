@@ -1,5 +1,3 @@
-import React from "react";
-
 export function LoadingFallback() {
   return (
     <div className="flex h-[50vh] w-full items-center justify-center">
