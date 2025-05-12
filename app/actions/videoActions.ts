@@ -1,7 +1,8 @@
+import { createServerFn } from "@tanstack/react-start";
+import ffmpegStatic from "ffmpeg-static";
+import ffmpeg from "fluent-ffmpeg";
 import fs from "fs";
 import path from "path";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegStatic from "ffmpeg-static";
 
 // Set the ffmpeg path
 if (ffmpegStatic) {
@@ -121,3 +122,9 @@ export const getVideoFn = async (
   });
   return stream;
 };
+
+export const listVideos = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  return getListOfVideosFn();
+});

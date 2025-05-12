@@ -111,7 +111,7 @@ function RouteComponent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="h-full py-3 flex items-center justify-center bg-background">
       <div className="w-full max-w-md px-4">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="rounded-full bg-primary/10 p-4 mb-4">

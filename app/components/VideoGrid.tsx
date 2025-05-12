@@ -1,3 +1,4 @@
+import { fetchVideosQueryOptions } from "@/actions/queryOptions";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -14,6 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   addDays,
@@ -102,11 +104,7 @@ const formatDate = (date: Date): string => {
   });
 };
 
-interface VideoGridProps {
-  videos: Video[];
-}
-
-export function VideoGrid({ videos }: VideoGridProps) {
+export function VideoGrid() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSort, setActiveSort] = useState<SortOption>(sortOptions[0]);
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -115,7 +113,12 @@ export function VideoGrid({ videos }: VideoGridProps) {
   });
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  // Handle date range selection with safety check
+  const { data } = useSuspenseQuery(fetchVideosQueryOptions());
+  const videos: Video[] = data?.map((video: any) => ({
+    ...video,
+    createdAt: new Date(video?.createdAt),
+  }));
+
   const handleDateRangeSelect = (range: DateRange | undefined) => {
     // If range is undefined, maintain the current dateRange
     if (!range) return;
@@ -126,9 +129,9 @@ export function VideoGrid({ videos }: VideoGridProps) {
   const filteredVideos = useMemo(() => {
     return videos.filter((video) => {
       // Text search filter
-      const matchesSearch = video.title
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+      const matchesSearch = video?.title
+        ?.toLowerCase()
+        .includes(searchQuery?.toLowerCase());
 
       // Date range filter
       let matchesDateRange = true;

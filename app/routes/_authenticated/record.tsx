@@ -1,4 +1,4 @@
-import { saveVideoFn } from "@/actions/videoActions";
+import { uploadToR2 } from "@/actions/storageActions";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ const saveVideo = createServerFn({
       throw new Error("Missing blob or sessionId");
     }
 
-    await saveVideoFn(blob, sessionId);
+    await uploadToR2(blob, sessionId);
   });
 
 function RouteComponent() {

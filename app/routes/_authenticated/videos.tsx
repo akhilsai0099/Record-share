@@ -1,30 +1,17 @@
-import { getListOfVideosFn } from "@/actions/videoActions";
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { VideoGrid, Video } from "@/components/VideoGrid";
-
-const listVideos = createServerFn({
-  method: "GET",
-}).handler(async () => {
-  return getListOfVideosFn();
-});
+import { listVideos } from "@/actions/serverFns";
+import { Video, VideoGrid } from "@/components/VideoGrid";
+import { createFileRoute } from "@tanstack/react-router";
+import { Suspense } from "react";
 
 export const Route = createFileRoute("/_authenticated/videos")({
   component: VideosPage,
-  loader: async () => {
+  loader: async ({ context }) => {
     return await listVideos();
   },
+  pendingComponent: () => <div>Loading...</div>,
 });
 
 function VideosPage() {
-  const videoData = Route.useLoaderData();
-
-  // Convert string dates to Date objects
-  const videos: Video[] = videoData.map((video: any) => ({
-    ...video,
-    createdAt: new Date(video.createdAt),
-  }));
-
   return (
     <div className="container py-8 px-4 md:px-6 mx-auto">
       <div className="mb-8">
@@ -33,8 +20,9 @@ function VideosPage() {
           Browse and manage your screen recordings
         </p>
       </div>
-
-      <VideoGrid videos={videos} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <VideoGrid />
+      </Suspense>
     </div>
   );
 }

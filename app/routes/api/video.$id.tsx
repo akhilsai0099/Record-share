@@ -53,8 +53,7 @@ export const APIRoute = createAPIFileRoute("/api/video/$id")({
           headers,
         });
       }
-      await setTimeout(5000); // Simulate a delay for testing
-      // Check for range request (video seeking)
+      await setTimeout(5000);
       const rangeHeader = request.headers.get("range");
 
       if (rangeHeader) {
