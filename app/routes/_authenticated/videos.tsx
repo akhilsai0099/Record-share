@@ -1,14 +1,13 @@
-import { listVideos } from "@/actions/serverFns";
-import { Video, VideoGrid } from "@/components/VideoGrid";
+import { fetchVideosQueryOptions } from "@/actions/queryOptions";
+import { VideoGrid } from "@/components/VideoGrid";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 export const Route = createFileRoute("/_authenticated/videos")({
   component: VideosPage,
   loader: async ({ context }) => {
-    return await listVideos();
+    return context.queryClient.ensureQueryData(fetchVideosQueryOptions());
   },
-  pendingComponent: () => <div>Loading...</div>,
 });
 
 function VideosPage() {
@@ -20,7 +19,7 @@ function VideosPage() {
           Browse and manage your screen recordings
         </p>
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Loading from suspense...</div>}>
         <VideoGrid />
       </Suspense>
     </div>
