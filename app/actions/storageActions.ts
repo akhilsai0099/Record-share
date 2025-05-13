@@ -1,12 +1,14 @@
-import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
+import { db } from "@/db";
+import { videos } from "@/db/schema";
 import { s3Client } from "@/lib/s3-client";
-import fs from "fs";
-import path from "path";
-import ffmpeg from "fluent-ffmpeg";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { eq } from "drizzle-orm";
 import ffmpegStatic from "ffmpeg-static";
-import { promisify } from "util";
+import ffmpeg from "fluent-ffmpeg";
+import fs from "fs";
 import os from "os";
-import { createServerFn } from "@tanstack/react-start";
+import path from "path";
+import { promisify } from "util";
 
 if (ffmpegStatic) {
   ffmpeg.setFfmpegPath(ffmpegStatic);
@@ -15,7 +17,7 @@ if (ffmpegStatic) {
 const writeFileAsync = promisify(fs.writeFile);
 const unlinkAsync = promisify(fs.unlink);
 
-export async function uploadToR2(file: Blob, fileName: string) {
+export async function uploadToR2(file: Blob, fileName: string, userId: string) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const uploadParams = {
@@ -25,12 +27,9 @@ export async function uploadToR2(file: Blob, fileName: string) {
     ContentType: file.type,
   };
 
-  // Set thumbnailKey as string | undefined
-  let thumbnailKey: string | undefined;
-
   if (file.type.startsWith("video/")) {
     try {
-      thumbnailKey = await uploadVideoWithThumbnail(buffer, fileName);
+      await uploadVideoWithThumbnail(buffer, fileName);
     } catch (error) {
       console.error("Failed to generate thumbnail:", error);
       // Continue with the original upload even if thumbnail generation fails
@@ -39,7 +38,17 @@ export async function uploadToR2(file: Blob, fileName: string) {
 
   try {
     const result = await s3Client.send(new PutObjectCommand(uploadParams));
-
+    if (result.$metadata.httpStatusCode === 200) {
+      await db.insert(videos).values({
+        fileName,
+        size: buffer.length,
+        createdAt: new Date(),
+        id: fileName,
+        thumbnailUrl: `/api/thumbnail/${fileName}_thumb.jpg`,
+        title: "Recording " + fileName.substring(0, 8),
+        userId: userId,
+      });
+    }
     return result;
   } catch (error) {
     console.error(`Error uploading ${fileName} to R2:`, error);
@@ -151,28 +160,34 @@ async function uploadVideoWithThumbnail(
   }
 }
 
-export async function getListOfVideosFn() {
-  const getListCommand = new ListObjectsV2Command({
-    Bucket: process.env.R2_BUCKET_NAME,
-    Prefix: "",
-  });
+export async function getListOfVideosFn(userID: string) {
+  const userVideos = await db
+    .select()
+    .from(videos)
+    .where(eq(videos.userId, userID));
 
-  const { Contents } = await s3Client.send(getListCommand);
-  if (!Contents) {
-    return [];
+  return userVideos.map((item) => ({
+    id: item.id,
+    fileName: item.fileName,
+    title: item.title || "Recording " + item.fileName?.substring(0, 8),
+    createdAt: item.createdAt,
+    size: item.size,
+    thumbnailUrl: `/api/thumbnail/${item.fileName}`,
+  }));
+}
+
+export async function getVideoMetadata(id: string) {
+  console.log("Fetching video metadata for ID:", id);
+  const response = await db.select().from(videos).where(eq(videos.id, id));
+  if (!response) {
+    throw new Error("Video not found");
   }
-  const videos = Contents.map((item) => {
-    if (item.Key?.endsWith("_thumb.jpg")) {
-      return; // Skip thumbnail files
-    }
-    return {
-      id: item.Key,
-      fileName: item.Key,
-      title: "Recording " + item?.Key?.substring(0, 8),
-      createdAt: item.LastModified,
-      size: item.Size,
-      thumbnailUrl: `/api/thumbnail/${item?.Key}`,
-    };
-  });
-  return videos;
+  return {
+    id,
+    fileName: response[0].fileName,
+    title: response[0].title || "Recording " + id.substring(0, 8),
+    createdAt: new Date(response[0].createdAt),
+    size: response[0].size,
+    thumbnailUrl: `/api/thumbnail/${id}`,
+  };
 }

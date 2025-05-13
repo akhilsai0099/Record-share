@@ -6,6 +6,7 @@ import { Nav } from "@/components/ui/nav";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "@/styles/app.css?url";
 import { QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   HeadContent,
   Outlet,
@@ -13,7 +14,6 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import type { ReactNode } from "react";
 
 export const Route = createRootRouteWithContext<{
@@ -36,6 +36,11 @@ export const Route = createRootRouteWithContext<{
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "icon",
+        // type: "image/png",
+        href: "/RecShare.svg",
       },
     ],
   }),

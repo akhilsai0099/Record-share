@@ -8,7 +8,7 @@ import { fetchUserQueryOptions } from "@/actions/queryOptions";
  * @param options Options to customize the query behavior
  * @returns Query result with authenticated user data and helper methods
  */
-export function useAuthenticatedUser(options = {}) {
+export function useAuthenticatedUser() {
   const query = useQuery(fetchUserQueryOptions());
 
   // Extract commonly used values

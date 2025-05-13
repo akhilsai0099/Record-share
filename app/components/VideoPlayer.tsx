@@ -9,6 +9,7 @@ import {
   SkipBack,
   SkipForward,
   Settings,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,8 @@ export function VideoPlayer({
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isWaitingForData, setIsWaitingForData] = useState(false);
 
   // Handle play/pause
   const togglePlay = () => {
@@ -165,9 +168,9 @@ export function VideoPlayer({
     if (!videoRef.current) return;
     videoRef.current.currentTime += seconds;
   };
-
   // Handler for when loadeddata event fires
   const handleVideoLoaded = () => {
+    setIsLoading(false);
     if (onLoaded) {
       onLoaded();
     }
@@ -209,7 +212,13 @@ export function VideoPlayer({
       handleVideoLoaded();
     };
 
-    // Fullscreen change detection
+    const onWaiting = () => {
+      setIsWaitingForData(true);
+    };
+
+    const onCanPlay = () => {
+      setIsWaitingForData(false);
+    }; // Fullscreen change detection
     const onFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
@@ -222,6 +231,8 @@ export function VideoPlayer({
     video.addEventListener("progress", onProgress);
     video.addEventListener("volumechange", onVolumeChange);
     video.addEventListener("loadeddata", onLoadedData);
+    video.addEventListener("waiting", onWaiting);
+    video.addEventListener("canplay", onCanPlay);
 
     document.addEventListener("fullscreenchange", onFullscreenChange);
     document.addEventListener("keydown", handleKeyDown);
@@ -235,6 +246,8 @@ export function VideoPlayer({
       video.removeEventListener("progress", onProgress);
       video.removeEventListener("volumechange", onVolumeChange);
       video.removeEventListener("loadeddata", onLoadedData);
+      video.removeEventListener("waiting", onWaiting);
+      video.removeEventListener("canplay", onCanPlay);
 
       document.removeEventListener("fullscreenchange", onFullscreenChange);
       document.removeEventListener("keydown", handleKeyDown);
@@ -257,6 +270,7 @@ export function VideoPlayer({
       onMouseMove={resetControlsTimeout}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
+      {" "}
       {/* Video Element */}
       <video
         ref={videoRef}
@@ -267,8 +281,19 @@ export function VideoPlayer({
         onClick={togglePlay}
         onDoubleClick={toggleFullscreen}
       />
+      {/* Loading spinner */}
+      {(isLoading || isWaitingForData) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-sm z-10">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <span className="text-primary-foreground text-sm font-medium">
+              {isLoading ? "Loading video..." : "Buffering..."}
+            </span>
+          </div>
+        </div>
+      )}
       {/* Big play button overlay (when paused) */}
-      {!isPlaying && (
+      {!isPlaying && !isLoading && (
         <div
           className="absolute inset-0 flex items-center justify-center cursor-pointer"
           onClick={togglePlay}

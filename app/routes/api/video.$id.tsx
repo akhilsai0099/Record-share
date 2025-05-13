@@ -1,8 +1,6 @@
-import { getVideoFn } from "@/actions/videoActions";
+import { s3Client } from "@/lib/s3-client";
+import { GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
-import fs from "fs";
-import path from "path";
-import { setTimeout } from "timers/promises";
 
 // Create a streaming API route for videos
 export const APIRoute = createAPIFileRoute("/api/video/$id")({
@@ -13,18 +11,26 @@ export const APIRoute = createAPIFileRoute("/api/video/$id")({
     const filename = url.searchParams.get("filename") || `video-${id}.webm`;
 
     try {
-      // Get the video file path
-      const dirPath = path.join(process.cwd(), "videos");
-      const filePath = path.join(dirPath, `${id}.webm`);
+      // Get video from S3/R2 storage
+      let fileSize: number;
 
-      // Check if the file exists
-      if (!fs.existsSync(filePath)) {
+      try {
+        // Get the object metadata to determine size
+        const headCommand = new HeadObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME,
+          Key: id,
+        });
+
+        const headResponse = await s3Client.send(headCommand);
+        fileSize = headResponse.ContentLength || 0;
+
+        if (fileSize === 0) {
+          throw new Error("File size is 0 or unknown");
+        }
+      } catch (s3Error) {
+        console.error(`Error fetching video ${id} from S3/R2:`, s3Error);
         return new Response("Video not found", { status: 404 });
       }
-
-      // Get file stats to determine size
-      const stat = fs.statSync(filePath);
-      const fileSize = stat.size;
 
       // Create response headers with necessary CORS and caching headers
       const headers = new Headers({
@@ -46,14 +52,26 @@ export const APIRoute = createAPIFileRoute("/api/video/$id")({
         );
         headers.set("Content-Length", fileSize.toString());
 
-        // Use streams for efficient file transfer
-        const fileStream = fs.createReadStream(filePath);
-        return new Response(fileStream as any, {
+        // Get the full object from S3/R2 but stream it to avoid memory issues
+        const getCommand = new GetObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME,
+          Key: id,
+        });
+
+        const s3Response = await s3Client.send(getCommand);
+
+        if (!s3Response.Body) {
+          return new Response("Error retrieving video", { status: 500 });
+        }
+
+        // Create a ReadableStream from the S3 body stream
+        const stream = s3Response.Body.transformToWebStream();
+
+        return new Response(stream, {
           status: 200,
           headers,
         });
       }
-      await setTimeout(5000);
       const rangeHeader = request.headers.get("range");
 
       if (rangeHeader) {
@@ -74,30 +92,35 @@ export const APIRoute = createAPIFileRoute("/api/video/$id")({
         headers.set("Content-Range", `bytes ${start}-${end}/${fileSize}`);
         headers.set("Content-Length", chunkSize.toString());
 
-        // Read the file chunk instead of streaming
-        const buffer = fs.readFileSync(filePath).subarray(start, end + 1);
+        // Get the partial object from S3/R2 using Range header
+        const getCommand = new GetObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME,
+          Key: id,
+          Range: `bytes=${start}-${end}`,
+        });
 
-        // Return response with the buffer
-        return new Response(buffer, {
+        // Use the stream directly from S3 response instead of loading into memory
+        const s3Response = await s3Client.send(getCommand);
+
+        if (!s3Response.Body) {
+          return new Response("Error retrieving video chunk", { status: 500 });
+        }
+
+        // Create a ReadableStream from the S3 body stream
+        const stream = s3Response.Body.transformToWebStream();
+
+        return new Response(stream, {
           status: 206, // Partial Content
           headers,
         });
       } else {
-        // For Chrome compatibility, we need to:
-        // 1. Send a HEAD response for the browser to discover metadata
-        // 2. Send a larger initial chunk that includes metadata
-
-        // Check if it's a HEAD request
-        if (request.method === "HEAD") {
-          headers.set("Content-Length", fileSize.toString());
-          return new Response(null, {
-            status: 200,
-            headers,
-          });
-        }
-
-        // For the initial GET request without range, send enough data for Chrome to parse metadata
-        // WebM metadata is typically at the beginning, so send the first 2MB or the whole file if smaller
+        // if (request.method === "HEAD") {
+        //   headers.set("Content-Length", fileSize.toString());
+        //   return new Response(null, {
+        //     status: 200,
+        //     headers,
+        //   });
+        // }
         const metadataSize = Math.min(2 * 1024 * 1024, fileSize); // 2MB or file size
 
         // For Chrome, we'll use partial content approach even for initial request
@@ -105,18 +128,34 @@ export const APIRoute = createAPIFileRoute("/api/video/$id")({
         const end = metadataSize - 1;
 
         headers.set("Content-Range", `bytes ${start}-${end}/${fileSize}`);
-        headers.set("Content-Length", metadataSize.toString());
+        headers.set("Content-Length", fileSize.toString());
 
-        // Read the beginning portion that contains metadata
-        const buffer = fs.readFileSync(filePath).subarray(start, end + 1);
+        // Get the beginning portion from S3/R2
+        const getCommand = new GetObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME,
+          Key: id,
+          Range: `bytes=${start}-${end}`,
+        });
 
-        // Return as partial content to encourage Chrome to load metadata and make range requests
-        return new Response(buffer, {
+        // Use the stream directly instead of loading into memory
+        const s3Response = await s3Client.send(getCommand);
+
+        if (!s3Response.Body) {
+          return new Response("Error retrieving video metadata", {
+            status: 500,
+          });
+        }
+
+        // Create a ReadableStream from the S3 body stream
+        const stream = s3Response.Body.transformToWebStream();
+
+        return new Response(stream, {
           status: 206, // Partial Content
           headers,
         });
       }
     } catch (error) {
+      console.error("Error streaming video:", error);
       return new Response("Error streaming video", { status: 500 });
     }
   },

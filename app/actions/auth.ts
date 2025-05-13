@@ -1,7 +1,6 @@
 import { authClient } from "@/lib/auth-client";
 import { createServerFn } from "@tanstack/react-start";
 import { getHeaders } from "@tanstack/react-start/server";
-import { setTimeout } from "timers/promises";
 
 export const fetchUser = createServerFn({ method: "GET" }).handler(
   async ({}) => {

@@ -1,4 +1,5 @@
 import { uploadToR2 } from "@/actions/storageActions";
+import { authenticated } from "@/middleware/authenticated";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -11,15 +12,16 @@ export const Route = createFileRoute("/_authenticated/record")({
 const saveVideo = createServerFn({
   method: "POST",
 })
+  .middleware([authenticated])
   .validator((data: FormData) => data)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const blob = data.get("blob") as Blob;
     const sessionId = data.get("sessionId") as string;
     if (!blob || !sessionId) {
       throw new Error("Missing blob or sessionId");
     }
 
-    await uploadToR2(blob, sessionId);
+    await uploadToR2(blob, sessionId, context?.user?.id);
   });
 
 function RouteComponent() {

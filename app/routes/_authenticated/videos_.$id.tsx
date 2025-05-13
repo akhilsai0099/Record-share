@@ -1,38 +1,18 @@
-import { getListOfVideosFn } from "@/actions/videoActions";
+import { fetchVideoMetadataQueryOptions } from "@/actions/queryOptions";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { format } from "date-fns";
 import { ArrowLeft, Clock, Download, Share2 } from "lucide-react";
 import { useState } from "react";
 
-// Create server function to get video data directly
-const getVideoById = createServerFn({
-  method: "GET",
-})
-  .validator((videoId: string) => videoId)
-  .handler(async ({ data: videoId }) => {
-    const allVideos = await getListOfVideosFn();
-    const video = allVideos.find((v) => v.id === videoId);
-    if (!video) {
-      throw new Error(`Video with ID ${videoId} not found`);
-    }
-    return {
-      ...video,
-      createdAt: new Date(video.createdAt),
-    };
-  });
-
 export const Route = createFileRoute("/_authenticated/videos_/$id")({
   component: RouteComponent,
-  loader: async ({ params }) => {
-    try {
-      return await getVideoById({ data: params.id });
-    } catch (error) {
-      return null;
-    }
+  loader: async ({ params, context }) => {
+    return context.queryClient.ensureQueryData(
+      fetchVideoMetadataQueryOptions(params.id)
+    );
   },
 });
 
