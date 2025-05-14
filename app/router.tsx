@@ -13,7 +13,7 @@ export function createRouter() {
       routeTree,
       context: { queryClient },
       defaultPreload: "intent",
-      scrollRestoration: true,
+      // scrollRestoration: true,
       defaultPendingComponent: () => <LoadingFallback />,
       defaultPendingMinMs: 300,
       defaultErrorComponent: ({ error }) => (
